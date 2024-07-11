@@ -1,18 +1,17 @@
 <script>
     import "../app.css";
-    import { ModeWatcher, toggleMode } from "mode-watcher";
+    import { toggleMode } from "mode-watcher";
     import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
     import { Button } from '$lib/components/ui/button';
     import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
     import { Sun, Moon, CircleUser } from 'lucide-svelte';
     
 </script>
-<ModeWatcher />
 <Navbar class="px-2 sm:px-4 py-2.5 fixed w-full z-20 top-0 start-0 border-b">
-    <NavBrand href="/">
+    <NavBrand href="/" class="text-gray-900 dark:text-white">
       <img src="/logo.svg" class="me-3 h-6 sm:h-9" alt="Flowbite Logo" />
       <span class="flex flex-col gap-1">
-        <span class="whitespace-nowrap text-xl font-semibold dark:text-white">Bee Triggered</span>
+        <span class="whitespace-nowrap text-xl font-semibold text-gray-900 dark:text-white">Bee Triggered</span>
         <small class="text-[8px]">by <a href="https://www.canyonedgetech.com" class="font-bold">Canyon Edge Technologies</a></small>
       </span>
       
@@ -33,8 +32,9 @@
             <DropdownMenu.Trigger asChild let:builder>
               <Button builders={[builder]} variant="outline" size="icon"><CircleUser class="h-[1.2rem] w-[1.2rem]" /></Button>
             </DropdownMenu.Trigger>
-            <DropdownMenu.Content class="w-56">
+            <DropdownMenu.Content align="end" class="w-56">
               <DropdownMenu.Label>My Account</DropdownMenu.Label>
+              <DropdownMenu.Item href="/auth/signout">Sign Out</DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         <NavHamburger />
