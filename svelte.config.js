@@ -12,8 +12,8 @@ const config = {
 				exclude: ['<all>'],
 			},
 		}),
-		preprocess: vitePreprocess(),
 	},
+	preprocess: vitePreprocess(),
 };
 
 export default config;
