@@ -3,14 +3,4 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [sveltekit()],
-	build: {
-		rollupOptions: {
-			external: [
-				'flowbite-svelte',
-				'svelte-time',
-				'mongoose',
-				'autoprefixer',
-			],
-		},
-	},
 });
