@@ -8,7 +8,7 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: adapter({
 			routes: {
-				include: ['/*', 'node_modules/flowbite-svelte'],
+				include: ['/*', 'flowbite-svelte'],
 				exclude: ['<all>'],
 			},
 		}),
