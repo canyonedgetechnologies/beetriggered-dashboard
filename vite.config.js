@@ -5,7 +5,7 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	build: {
 		rollupOptions: {
-			external: ['mongoose', 'flowbite-svelte'],
+			external: ['node_modules/*'],
 		},
 	},
 });
