@@ -1,46 +1,70 @@
-import { json } from '@sveltejs/kit';
-export async function GET({ request }) {
-      
-    let data = [
-        {
-          "_id": "6675628c013d5b95e9217dca",
-          "dst_host": "127.0.0.1",
-          "dst_port": 443,
-          "local_time": "2024-06-21 11:22:52.487306",
-          "local_time_adjusted": "2024-06-21 05:22:52.487413",
-          "logdata": {
-            "HOSTNAME": "localhost",
-            "PATH": "/index.html",
-            "SKIN": "nasLogin",
-            "USERAGENT": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-          },
-          "logtype": 3000,
-          "node_id": "opencanary-1",
-          "src_host": "127.0.0.1",
-          "src_port": 57700,
-          "utc_time": "2024-06-21 11:22:52.487404",
-          "__v": 0
-        },
-        {
-          "_id": "667560ef013d5b95e9217dc3",
-          "dst_host": "127.0.0.1",
-          "dst_port": 443,
-          "local_time": "2024-06-21 11:15:59.622214",
-          "local_time_adjusted": "2024-06-21 05:15:59.622241",
-          "logdata": {
-            "HOSTNAME": "localhost",
-            "PATH": "/index.html",
-            "SKIN": "nasLogin",
-            "USERAGENT": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-          },
-          "logtype": 3000,
-          "node_id": "opencanary-1",
-          "src_host": "127.0.0.1",
-          "src_port": 57040,
-          "utc_time": "2024-06-21 11:15:59.622234",
-          "__v": 0
-        }
-      ];
+import { json, error } from '@sveltejs/kit';
+import Log from '$lib/server/models/Log';
+import dbConnect from '$lib/server/dbConnect.js';
 
-    return json(data);
+import { get_api_key_permissions } from '$lib/server/apiKeys.js';
+
+dbConnect();
+
+// GET list of logs
+export async function GET(event) {
+	const session = await event.locals.auth();
+
+	const public_key = event.request.headers.get('x-bee-public');
+	const secret_key = event.request.headers.get('x-bee-secret');
+	// If no session, return 403
+	if (!session?.user?.email) {
+		if (!public_key || !secret_key) {
+			return error(403, { message: 'Access Denied' });
+		}
+		const permissions = await get_api_key_permissions(
+			public_key,
+			secret_key
+		);
+		if (!permissions || permissions.logs.permission == 'none') {
+			return error(403, { message: 'Access Denied' });
+		}
+	}
+	try {
+		const logs = await Log.find({}, null, { sort: { local_time: -1 } });
+		return json(logs);
+	} catch (err) {
+		return error(500, err);
+	}
+}
+
+// POST new log
+export async function POST(event) {
+	const session = await event.locals.auth();
+
+	const public_key = event.request.headers.get('x-bee-public');
+	const secret_key = event.request.headers.get('x-bee-secret');
+	// If no session, return 403
+	if (!session?.user?.email) {
+		if (!public_key || !secret_key) {
+			return error(403, { message: 'Access Denied' });
+		}
+		const permissions = await get_api_key_permissions(
+			public_key,
+			secret_key
+		);
+		if (!permissions || permissions.logs.permission != 'create') {
+			return error(403, { message: 'Access Denied' });
+		}
+	}
+
+	try {
+		let data = await event.request.json();
+		data = JSON.parse(data.message);
+		if (data.logtype > 1999) {
+			console.log('STARTUP LOG: ', data);
+		}
+
+		let newlog = Log.create(data);
+		return json(newlog);
+
+		return json({ message: 'ok' });
+	} catch (err) {
+		return error(500, err);
+	}
 }

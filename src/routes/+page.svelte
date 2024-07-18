@@ -65,7 +65,7 @@
                         <Table.Cell>{logtypes[log.logtype]} detected</Table.Cell>
                         <Table.Cell>{log.src_host}</Table.Cell>
                         <Table.Cell>{log.dst_host}</Table.Cell>
-                        <Table.Cell><Time timestamp={new Date(log.local_time_adjusted)} relative /></Table.Cell>
+                        <Table.Cell><Time timestamp={new Date(log.local_time_adjusted)} format="dddd @ h:mm A · MMMM D, YYYY" relative /></Table.Cell>
                         <Table.Cell class="text-right">
                             <DropdownMenu.Root>
                                 <DropdownMenu.Trigger asChild let:builder>
@@ -101,6 +101,8 @@
                         <span class="flex items-center"><Indicator size="sm" color="red" class="me-1.5 glow-red" />Offline</span>
                         {:else if machine.status == "running"}
                         <span class="flex items-center"><Indicator size="sm" color="green" class="me-1.5 glow-green" />Online</span>
+                        {:else}
+                        <span class="flex items-center"><Indicator size="sm" color="yellow" class="me-1.5 glow-yellow" />{machine.status}</span>
                         {/if}
                         <DropdownMenu.Root>
                             <DropdownMenu.Trigger asChild let:builder>
@@ -122,7 +124,7 @@
                 </Card.Header>
                 <Card.Content>
                     <ul class="flex flex-col gap-2">
-                        <li class="flex flex-row justify-between gap-2"><span class="font-bold">Last Check In: </span><Time timestamp={machine.last_checkin} relative /></li>
+                        <li class="flex flex-row justify-between gap-2"><span class="font-bold">Last Check In: </span><Time timestamp={machine.last_checkin} format="dddd @ h:mm A · MMMM D, YYYY" relative /></li>
                         <li class="flex flex-row justify-between gap-2"><span class="font-bold">IP Address: </span> {machine.ip_address}</li>
                         <li class="flex flex-row justify-between gap-2"><span class="font-bold">Location: </span> {machine.location}</li>
                         <li class="flex flex-row justify-between gap-2"><span class="font-bold">Uptime: </span> {dayjs(machine.startup_time).toNow(true)}</li>

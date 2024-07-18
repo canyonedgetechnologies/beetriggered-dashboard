@@ -7,10 +7,15 @@ async function authorizationHandle({ event, resolve }) {
     const session = await event.locals.auth();
 
     console.log(session);
-    if (!session) {
+
+    // if no session or if the session is not authenticated then redirect to the signin page
+    // if route is /api then allow the requests to go through
+
+    if (!session && !event.url.pathname.startsWith('/api')) {
       // Redirect to the signin page
       throw redirect(303, '/auth/signin');
     }
+
  
   // If the request is still here, just proceed as normally
   return resolve(event);

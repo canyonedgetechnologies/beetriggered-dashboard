@@ -9,9 +9,49 @@
     import { Sun, Moon, CircleUser, Trash, CirclePlus } from 'lucide-svelte';
     import { Input } from '$lib/components/ui/input';
 
+    import { onMount } from 'svelte';
+
     import { page } from '$app/stores';
 
     let alertSettingsOpen = false;
+
+    let alertHandlers = [];
+
+    let newAlertHandler = {
+      type: 'email',
+      address: ''
+    }
+
+    const addAlertHandler = async () => {
+      await fetch('/api/handlers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newAlertHandler)
+      }).then(res => res.json()).then(data => {
+        getAlertHandlers();
+        newAlertHandler.address = '';
+      });
+    }
+
+    const deleteAlertHandler = async (handler) => {
+      await fetch(`/api/handlers/${handler}`, {
+        method: 'DELETE'
+      }).then(res => res.json()).then(data => {
+        getAlertHandlers();
+      });
+    }
+
+    const getAlertHandlers = async () => {
+      const res = await fetch('/api/handlers');
+      const data = await res.json();
+      alertHandlers = data;
+    }
+
+    onMount(() => {
+      getAlertHandlers();
+    });
     
 </script>
 <Navbar class="px-2 sm:px-4 py-2.5 fixed w-full z-20 top-0 start-0 border-b">
@@ -60,6 +100,14 @@
       <Dialog.Description>
         Choose where you recieve alerts
       </Dialog.Description>
+
+      <b>Subscribe Email to Alerts:</b>
+      <form on:submit|preventDefault={addAlertHandler} class="flex flex-row gap-4">
+          <Input type="email" placeholder="Enter Email Address here..." bind:value={newAlertHandler.address} />
+          <Button size="icon" variant="outline" type="submit">
+            <CirclePlus class="h-[1.2rem] w-[1.2rem]" />
+          </Button>
+      </form>
       <!-- Show a list of alert methods for email, slack, and teams webhooks -->
       <Table.Root>
         <Table.Header>
@@ -70,28 +118,19 @@
           </Table.Row>
         </Table.Header>
         <Table.Body>
+          {#each alertHandlers as handler}
           <Table.Row>
             <Table.Cell>Email</Table.Cell>
             <Table.Cell>
-              williampaul@phelpsfamily.org
+              {handler.address}
             </Table.Cell>
             <Table.Cell class="text-right">
-              <Button variant="destructive" size="icon">
+              <Button variant="destructive" size="icon" on:click={() => { deleteAlertHandler(handler._id) }}>
                 <Trash class="h-[1.2rem] w-[1.2rem]" />
               </Button>
             </Table.Cell>
           </Table.Row>
-          <Table.Row>
-            <Table.Cell>Add</Table.Cell>
-            <Table.Cell>
-              <Input type="email" placeholder="Email" class="w-full" />
-            </Table.Cell>
-            <Table.Cell class="text-right">
-              <Button size="icon" variant="outline">
-                <CirclePlus class="h-[1.2rem] w-[1.2rem]" />
-              </Button>
-            </Table.Cell>
-          </Table.Row>
+          {/each}
         </Table.Body>
       </Table.Root>
     </Dialog.Header>

@@ -1,11 +1,11 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import { MONGODB_URI } from '$env/static/private';
+import { MONGODB_URI, DATABASE_NAME } from '$env/static/private';
  
 if (!MONGODB_URI) {
   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"')
 }
  
-const uri = MONGODB_URI
+const uri = MONGODB_URI + DATABASE_NAME
 const options = {
   serverApi: {
     version: ServerApiVersion.v1,
