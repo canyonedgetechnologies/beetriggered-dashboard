@@ -28,6 +28,7 @@
 	"dependencies": {
 		"@auth/mongodb-adapter": "^3.4.1",
 		"@auth/sveltekit": "^1.4.1",
+		"@sveltejs/adapter-cloudflare": "^4.6.1",
 		"@zerodevx/svelte-json-view": "^1.0.9",
 		"axios": "^1.7.2",
 		"bcrypt": "^5.1.1",
