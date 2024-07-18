@@ -2,9 +2,9 @@
 	"$schema": "https://shadcn-svelte.com/schema.json",
 	"style": "new-york",
 	"tailwind": {
-		"config": "tailwind.config.js",
+		"config": "tailwindnew.config.js",
 		"css": "src/app.css",
-		"baseColor": "neutral"
+		"baseColor": "slate"
 	},
 	"aliases": {
 		"components": "$lib/components",

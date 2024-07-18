@@ -3,7 +3,7 @@ import { fontFamily } from "tailwindcss/defaultTheme";
 /** @type {import('tailwindcss').Config} */
 const config = {
 	darkMode: ["class"],
-	content: ["./src/**/*.{html,js,svelte,ts}"],
+	content: ["./src/**/*.{html,js,svelte,ts}", "./node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}"],
 	safelist: ["dark"],
 	theme: {
 		container: {
@@ -47,6 +47,18 @@ const config = {
 				card: {
 					DEFAULT: "hsl(var(--card) / <alpha-value>)",
 					foreground: "hsl(var(--card-foreground) / <alpha-value>)"
+				},
+				gray: {
+					"50":"hsl(24 9.8% 100%)",
+					"100":"hsl(24 9.8% 90%)",
+					"200":"hsl(24 9.8% 80%)",
+					"300":"hsl(24 9.8% 70%)",
+					"400":"hsl(24 9.8% 60%)",
+					"500":"hsl(24 9.8% 50%)",
+					"600":"hsl(24 9.8% 40%)",
+					"700":"hsl(24 9.8% 30%)",
+					"800":"hsl(24 9.8% 20%)",
+					"900":"hsl(24 9.8% 10%)"
 				}
 			},
 			borderRadius: {
