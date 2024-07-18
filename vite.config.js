@@ -5,7 +5,12 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	build: {
 		rollupOptions: {
-			external: ['flowbite-svelte', 'svelte-time', 'mongoose'],
+			external: [
+				'flowbite-svelte',
+				'svelte-time',
+				'mongoose',
+				'autoprefixer',
+			],
 		},
 	},
 });
