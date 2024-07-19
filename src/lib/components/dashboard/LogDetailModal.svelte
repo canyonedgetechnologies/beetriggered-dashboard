@@ -4,8 +4,15 @@
     import Time from 'svelte-time';
     import { JsonView } from '@zerodevx/svelte-json-view';
     import { logtypes } from '$lib';
+	import axios from 'axios';
     export let log = {
         open: false,
+    };
+
+    const markAsRead = async () => {
+        await axios.put(`/api/logs/${log._id}`, { status: 'read' }).then((res) => {
+            log.open = !log.open;
+        });
     };
 </script>
 <Dialog.Root bind:open={log.open}>
@@ -36,7 +43,7 @@
       </div>
       <Dialog.Footer class="gap-2">
         <Button variant="outline" on:click={() => {log.open = !log.open}} class="hover:glow-green transition-all duration-500">Close</Button>
-        <Button type="submit" class="hover:glow-green transition-all duration-500">Mark as Read</Button>
+        <Button type="submit" class="hover:glow-green transition-all duration-500" on:click={markAsRead}>Mark as Read</Button>
       </Dialog.Footer>
     </Dialog.Content>
 </Dialog.Root>

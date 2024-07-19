@@ -1,10 +1,22 @@
 import { json, error } from '@sveltejs/kit';
 import Log from '$lib/server/models/Log';
+import AlertHandler from '$lib/server/models/AlertHandler';
 import dbConnect from '$lib/server/dbConnect.js';
 
+import LogEmail from '$lib/components/email/LogEmail.svelte';
+
+import { render } from 'svelte-email';
+
+import { Resend } from 'resend';
+
 import { get_api_key_permissions } from '$lib/server/apiKeys.js';
+import { AUTH_RESEND_KEY } from '$env/static/private';
+
+import { logtypes } from '$lib';
 
 dbConnect();
+
+const resend = new Resend(AUTH_RESEND_KEY);
 
 // GET list of logs
 export async function GET(event) {
@@ -26,7 +38,21 @@ export async function GET(event) {
 		}
 	}
 	try {
-		const logs = await Log.find({}, null, { sort: { local_time: -1 } });
+		let filter = {};
+
+		let searchParams = event.url.searchParams;
+
+		if (searchParams.has('logtype')) {
+			filter.logtype = searchParams.get('logtype');
+		}
+
+		if (searchParams.has('status')) {
+			filter.status = searchParams.get('status');
+		}
+
+		const logs = await Log.find(filter, null, {
+			sort: { local_time_adjusted: -1 },
+		});
 		return json(logs);
 	} catch (err) {
 		return error(500, err);
@@ -56,12 +82,34 @@ export async function POST(event) {
 	try {
 		let data = await event.request.json();
 		data = JSON.parse(data.message);
-		if (data.logtype > 1999) {
-			console.log('STARTUP LOG: ', data);
-		}
 
-		let newlog = Log.create(data);
-		return json(newlog);
+		if (data.logtype > 1999) {
+			data.status = 'new';
+
+			// Get All AlertHandlers where type = email and send an email to each one
+
+			let emailHandlers = await AlertHandler.find({ type: 'email' });
+
+			for (let emailHandler of emailHandlers) {
+				let email = emailHandler.address;
+				let subject =
+					'New Alert: ' + logtypes[data.logtype] + ' - BeeTriggered!';
+				let body = render({
+					template: LogEmail,
+					props: { log: data },
+				});
+
+				await resend.emails.send({
+					from: 'william@canyonedgetech.com',
+					to: email,
+					subject: subject,
+					html: body,
+				});
+			}
+
+			let newlog = Log.create(data);
+			return json(newlog);
+		}
 
 		return json({ message: 'ok' });
 	} catch (err) {

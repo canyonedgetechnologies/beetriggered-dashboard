@@ -6,6 +6,7 @@
     import { Badge } from "$lib/components/ui/badge";
     import { Button } from '$lib/components/ui/button';
     import * as Select from "$lib/components/ui/select";
+	import axios from 'axios';
     export let machine = {
         "_id": "6557a613d8c7174cfb137aee",
         "name": "Test Machine 1",
@@ -155,6 +156,18 @@
             machine.config["portscan.ignore_ports"] = [...machine.config["portscan.ignore_ports"], machine.config["portscan.ignore_ports.list"]];
             machine.config["portscan.ignore_ports.list"] = "";
         }
+    }
+
+    const removePort = (port) => {
+        machine.config["portscan.ignore_ports"] = machine.config["portscan.ignore_ports"].filter(p => p !== port);
+    }
+
+    const saveChanges = async () => {
+        axios.put(`/api/machines/${machine._id}`, machine).then((res) => {
+            machine.open = !machine.open;
+        }).catch((err) => {
+            console.log(err);
+        });
     }
 </script>
 
@@ -354,7 +367,7 @@
                         <span class="font-bold">Ignore Ports:</span>
                             <span class="flex flex-row gap-2 flex-wrap">
                                 {#each machine.config["portscan.ignore_ports"] as port}
-                                    <Badge variant="outline">{port}</Badge>
+                                    <Badge variant="outline" on:click={() => removePort(port)}>{port}</Badge>
                                 {/each}
                             </span>
                         </span>
@@ -598,7 +611,7 @@
       </div>
       <Dialog.Footer class="gap-2">
         <Button variant="outline" on:click={() => {machine.open = !machine.open}} class="hover:glow-green transition-all duration-500">Cancel</Button>
-        <Button type="submit" class="hover:glow-green transition-all duration-500">Save Changes</Button>
+        <Button type="submit" class="hover:glow-green transition-all duration-500" on:click={saveChanges}>Save Changes</Button>
       </Dialog.Footer>
     </Dialog.Content>
 </Dialog.Root>

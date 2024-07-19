@@ -20,7 +20,7 @@
     let machines = [];
 
     const getLogs = async () => {
-        logs = await axios.get('/api/logs').then((res) => { return res.data} );
+        logs = await axios.get('/api/logs?status=new').then((res) => { return res.data} );
 
         for (let log of logs) {
             log.open = false;
@@ -35,9 +35,21 @@
         }
     }
 
+    const markLogAsRead = async (log) => {
+        await axios.put(`/api/logs/${log}`, { status: 'read' }).then((res) => {
+            log.open = !log.open;
+            getLogs();
+        });
+    };
+
     onMount(() => {
         getLogs();
         getMachines();
+
+        // Poll for new logs every 5 seconds
+        setInterval(() => {
+            getLogs();
+        }, 5000);
     });
 </script>
 <div class="px-10 flex flex-col gap-16">
@@ -72,7 +84,7 @@
                                 <Button builders={[builder]} variant="outline" size="icon"><Ellipsis class="h-[1.2rem] w-[1.2rem]" /></Button>
                                 </DropdownMenu.Trigger>
                                 <DropdownMenu.Content class="w-56">
-                                    <DropdownMenu.Item>
+                                    <DropdownMenu.Item on:click={() => { markLogAsRead(log._id) }}>
                                         <Mail class="mr-2 h-4 w-4" />
                                         <span>Mark as Read</span>
                                     </DropdownMenu.Item>
@@ -124,7 +136,7 @@
                 </Card.Header>
                 <Card.Content>
                     <ul class="flex flex-col gap-2">
-                        <li class="flex flex-row justify-between gap-2"><span class="font-bold">Last Check In: </span><Time timestamp={machine.last_checkin} format="dddd @ h:mm A · MMMM D, YYYY" relative /></li>
+                        <li class="flex flex-row justify-between gap-2"><span class="font-bold">Last Check In: </span><Time timestamp={machine.last_seen} format="dddd @ h:mm A · MMMM D, YYYY" relative /></li>
                         <li class="flex flex-row justify-between gap-2"><span class="font-bold">IP Address: </span> {machine.ip_address}</li>
                         <li class="flex flex-row justify-between gap-2"><span class="font-bold">Location: </span> {machine.location}</li>
                         <li class="flex flex-row justify-between gap-2"><span class="font-bold">Uptime: </span> {dayjs(machine.startup_time).toNow(true)}</li>
